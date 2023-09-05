@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useState,useEffect } from 'react'
 import 'h8k-components'
 
 import { image1, image2, image3, image4 } from './assets/images'
@@ -30,6 +30,49 @@ function App() {
   const [ activeIndex, setActiveIndex ] = useState(0)
   const [ slideTimer, setSlideTimer ] = useState(null)
   const [ slideDuration ] = useState(3000)
+  const [isAutoSlide,setIsAutoSlide] = useState(false)
+
+
+  const handleMoveNext = () => {
+    if(activeIndex === 0){
+      setActiveIndex(1)
+      return
+    }
+
+    if(catalogsList.length -1  === activeIndex){
+      setActiveIndex(0)
+    }else if(activeIndex < catalogs.length - 1){
+      setActiveIndex(activeIndex + 1)
+    }
+
+    console.log('%%% indexxxx active',activeIndex)
+  }
+
+  useEffect(() => {
+    let timeoutId;
+    if(isAutoSlide)(
+      timeoutId = setTimeout(() => {
+        
+        handleMoveNext()
+
+      }, slideDuration)
+    )
+    return () => clearTimeout(timeoutId);
+  }, [handleMoveNext]); 
+
+  const handleAutoSlide = (e) => {
+    setIsAutoSlide(e.cancelable)
+  }
+
+
+  const handleMovePrev = () => {
+    console.log('%%% indexxxx active',activeIndex)
+    if(activeIndex === 0){
+      setActiveIndex(catalogs.length - 1)
+      return
+    }
+    setActiveIndex(activeIndex - 1)
+  }
 
   return (
     <Fragment>
@@ -40,18 +83,22 @@ function App() {
             <Viewer catalogImage={ catalogs[activeIndex].image } />
             <div className='layout-row justify-content-center align-items-center mt-20'>
             <button 
+            onClick={handleMovePrev}
               className="icon-only outlined"
               data-testid="prev-slide-btn"
             >
               <i className="material-icons">arrow_back</i>
             </button>
               <Thumbs 
+              catalogs={catalogs}
+              setActiveIndex={setActiveIndex}
                 items={ catalogs } 
                 currentIndex={ activeIndex } 
               />
             <button 
               className="icon-only outlined"
               data-testid="next-slide-btn"
+              onClick={handleMoveNext}
             >
               <i className="material-icons">arrow_forward</i>
             </button>
@@ -60,6 +107,7 @@ function App() {
         </div>
         <div className='layout-row justify-content-center mt-25'>
           <input 
+            onClick={handleAutoSlide}
             type='checkbox'
             data-testid='toggle-slide-show-button'
           /> 
